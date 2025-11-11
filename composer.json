@@ -1,0 +1,11 @@
+{
+  "name": "cloudstay/php-spanner-test",
+  "require": {
+    "google/cloud-spanner": "^1.8"
+  },
+  "autoload": {
+    "psr-4": {
+      "Cloudstay\\": "src/"
+    }
+  }
+}
