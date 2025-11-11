@@ -1,28 +1,34 @@
-# syntax=docker/dockerfile:1
+# Etapa base
 FROM php:8.2-cli
 
-# Crear directorio de la app
-WORKDIR /app
-
-# Instalar dependencias del sistema necesarias
+# Instala dependencias del sistema
 RUN apt-get update && apt-get install -y \
     unzip \
     git \
-  && rm -rf /var/lib/apt/lists/*
+    libz-dev \
+    libssl-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Instalar composer
+# Instala extensiones necesarias: grpc, protobuf
+RUN pecl install grpc protobuf \
+    && docker-php-ext-enable grpc protobuf
+
+# Instala Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Copiar archivos de la app
+WORKDIR /app
+
+# Copia archivos de composer
 COPY composer.json /app/
-# (Si tienes lock, copy también composer.lock)
+
+# Instala dependencias del proyecto
 RUN composer install --no-dev --no-interaction --no-scripts --prefer-dist
 
-COPY public /app/public
+# Copia el resto de tu aplicación
+COPY . /app
 
-# Exponer puerto que usará Cloud Run (no obligatorio, pero ayuda)
+# Puerto por defecto
 EXPOSE 8080
 
-# Arrancar servidor PHP en el puerto 8080
-ENV PORT 8080
-CMD ["php", "-S", "0.0.0.0:8080", "-t", "public"]
+# Comando de inicio (usa PHP builtin server)
+CMD
