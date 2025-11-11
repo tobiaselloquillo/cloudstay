@@ -1,0 +1,2 @@
+runtime: php82 # O php83 si lo prefieres
+entrypoint: serve index.php
